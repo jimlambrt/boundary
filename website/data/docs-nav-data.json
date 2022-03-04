@@ -4,6 +4,35 @@
     "path": "what-is-boundary"
   },
   {
+    "title": "Boundary vs. Other Software",
+    "routes": [
+      {
+        "title": "Overview",
+        "path": "boundary-vs-other-software"
+      },
+      {
+        "title": "Boundary vs. ASA",
+        "path": "boundary-vs-other-software/boundary-vs-asa"
+      },
+      {
+        "title": "Boundary vs. Consul",
+        "path": "boundary-vs-other-software/boundary-vs-consul"
+      },
+      {
+        "title": "Boundary vs. CyberArk",
+        "path": "boundary-vs-other-software/boundary-vs-cyberark"
+      },
+      {
+        "title": "Boundary vs. Teleport",
+        "path": "boundary-vs-other-software/boundary-vs-teleport"
+      },
+      {
+        "title": "Boundary vs. Vault",
+        "path": "boundary-vs-other-software/boundary-vs-vault"
+      }
+    ]
+  },
+  {
     "title": "Getting Started",
     "routes": [
       {
