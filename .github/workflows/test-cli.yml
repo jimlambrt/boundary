@@ -1,0 +1,25 @@
+name: cli-tests
+
+on: push
+
+jobs:
+  bats:
+    runs-on: ubuntu-latest
+    name: CLI tests
+    steps:
+      - uses: actions/checkout@v2
+      - name: Setup go
+        uses: actions/setup-go@v2
+        with:
+          go-version: "1.17.5"
+      - name: Install bats
+        run: |
+          sudo apt-get update -y
+          sudo apt-get install -y bats
+          bats --version
+      - name: Go build and install
+        run: |
+          make install
+      - name: Run cli bats tests
+        run: |
+          make test-cli
