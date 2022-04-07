@@ -132,7 +132,9 @@ func WriteError(ctx context.Context, caller Op, e error, opt ...Option) {
 		eventer = SysEventer()
 		if eventer == nil {
 			logger := hclog.New(nil)
-			logger.Error(fmt.Sprintf("%s: no eventer available to write error: %v", op, e))
+			if os.Getenv("CI") == "" {
+				logger.Error(fmt.Sprintf("%s: no eventer available to write error: %v", op, e))
+			}
 			return
 		}
 	}
