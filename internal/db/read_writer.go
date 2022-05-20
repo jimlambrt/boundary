@@ -69,6 +69,15 @@ type Reader interface {
 
 // Writer interface defines create, update and retryable transaction handlers
 type Writer interface {
+	// BeginTx will start a transaction
+	BeginTx(ctx context.Context) (*Db, *dbw.RW, error)
+
+	// RollbackTx will rollback a transaction
+	RollbackTx(ctx context.Context, transaction *dbw.RW) error
+
+	// CommitTx will commit a transaction
+	CommitTx(ctx context.Context, transaction *dbw.RW) error
+
 	// DoTx will wrap the TxHandler in a retryable transaction
 	DoTx(ctx context.Context, retries uint, backOff Backoff, Handler TxHandler) (RetryInfo, error)
 
@@ -386,6 +395,38 @@ func (rw *Db) DeleteItems(ctx context.Context, deleteItems []interface{}, opt ..
 		return NoRowsAffected, wrapError(ctx, err, op)
 	}
 	return rowsDeleted, nil
+}
+
+// BeginTx will start a transaction and return a RW for use in db operations
+func (w *Db) BeginTx(ctx context.Context) (*Db, *dbw.RW, error) {
+	const op = "db.BeginTx"
+	beginTx, err := dbw.New(w.underlying.wrapped).Begin(ctx)
+	if err != nil {
+		return nil, nil, wrapError(ctx, err, op)
+	}
+	newRW := New(&DB{wrapped: beginTx.DB()})
+	return newRW, beginTx, nil
+}
+
+// RollbackTx will rollback a transaction
+func (w *Db) RollbackTx(ctx context.Context, transaction *dbw.RW) error {
+	const op = "db.RollbackTx"
+	if err := transaction.Rollback(ctx); err != nil {
+		return wrapError(ctx, err, op)
+	}
+	return nil
+}
+
+// CommitTx will commit a transaction
+func (w *Db) CommitTx(ctx context.Context, transaction *dbw.RW) error {
+	const op = "db.CommitTx"
+	if err := transaction.Commit(ctx); err != nil {
+		if err := transaction.Rollback(ctx); err != nil {
+			return errors.Wrap(ctx, err, op)
+		}
+		return errors.Wrap(ctx, err, op)
+	}
+	return nil
 }
 
 // DoTx will wrap the Handler func passed within a transaction with retries

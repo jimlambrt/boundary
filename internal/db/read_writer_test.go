@@ -1148,6 +1148,60 @@ func TestDb_Exec(t *testing.T) {
 	})
 }
 
+func TestDb_Transactions(t *testing.T) {
+	t.Parallel()
+	ctx := context.TODO()
+	conn, _ := TestSetup(t, "postgres")
+	TestCreateTables(t, conn)
+	t.Run("create-and-commit", func(t *testing.T) {
+		require := require.New(t)
+		w := New(conn)
+		transactionWriter, transaction, err := w.BeginTx(ctx)
+		require.NoError(err)
+
+		id := testId(t)
+		user, err := db_test.NewTestUser()
+		require.NoError(err)
+		user.Name = "foo-" + id
+		err = transactionWriter.Create(context.Background(), user)
+		require.NoError(err)
+		err = transactionWriter.CommitTx(ctx, transaction)
+		require.NoError(err)
+	})
+	t.Run("create-and-rollback", func(t *testing.T) {
+		require := require.New(t)
+		w := New(conn)
+		transactionWriter, transaction, err := w.BeginTx(ctx)
+		require.NoError(err)
+
+		id := testId(t)
+		user, err := db_test.NewTestUser()
+		require.NoError(err)
+		user.Name = "foo-" + id
+		err = transactionWriter.Create(context.Background(), user)
+		require.NoError(err)
+		err = transactionWriter.RollbackTx(ctx, transaction)
+		require.NoError(err)
+	})
+	t.Run("error-create-commit-rollback", func(t *testing.T) {
+		require := require.New(t)
+		w := New(conn)
+		transactionWriter, transaction, err := w.BeginTx(ctx)
+		require.NoError(err)
+
+		id := testId(t)
+		user, err := db_test.NewTestUser()
+		require.NoError(err)
+		user.Name = "foo-" + id
+		err = transactionWriter.Create(context.Background(), user)
+		require.NoError(err)
+		err = transactionWriter.CommitTx(ctx, transaction)
+		require.NoError(err)
+		err = transactionWriter.RollbackTx(ctx, transaction)
+		require.Error(err)
+	})
+}
+
 func TestDb_DoTx(t *testing.T) {
 	t.Parallel()
 	ctx := context.TODO()
