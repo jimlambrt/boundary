@@ -2,7 +2,6 @@ package handlers_test
 
 import (
 	"context"
-	"github.com/hashicorp/boundary/internal/daemon/cluster/handlers"
 	"sync"
 	"testing"
 
@@ -12,6 +11,7 @@ import (
 	"github.com/google/go-cmp/cmp"
 	"github.com/google/go-cmp/cmp/cmpopts"
 	"github.com/hashicorp/boundary/internal/authtoken"
+	"github.com/hashicorp/boundary/internal/daemon/cluster/handlers"
 	"github.com/hashicorp/boundary/internal/db"
 	pbs "github.com/hashicorp/boundary/internal/gen/controller/servers/services"
 	"github.com/hashicorp/boundary/internal/host/static"
