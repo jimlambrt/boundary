@@ -153,6 +153,46 @@ func TestStoreWorkerAuth(t *testing.T) {
 	require.Error(err)
 }
 
+func TestTransactionalStore(t *testing.T) {
+	require, assert := require.New(t), assert.New(t)
+	ctx := context.Background()
+	wrapper := db.TestWrapper(t)
+	conn, _ := db.TestSetup(t, "postgres")
+	kmsCache := kms.TestKms(t, conn, wrapper)
+	err := kmsCache.CreateKeys(context.Background(), scope.Global.String(), kms.WithRandomReader(rand.Reader))
+	require.NoError(err)
+	wrapper, err = kmsCache.GetWrapper(context.Background(), scope.Global.String(), kms.KeyPurposeDatabase)
+	require.NoError(err)
+	require.NotNil(wrapper)
+
+	rw := db.New(conn)
+	storage, err := NewRepositoryStorage(ctx, rw, rw, kmsCache, (*store.Worker)(nil), false)
+	require.NoError(err)
+
+	rootIds, err := storage.List(ctx, (*types.RootCertificate)(nil))
+	require.NoError(err)
+	assert.Len(rootIds, 0)
+
+	transactionalStorage, err := NewRepositoryStorage(ctx, rw, rw, kmsCache, (*store.Worker)(nil), true)
+	require.NoError(err)
+
+	// Generate roots and ensure they exist
+	_, err = rotation.RotateRootCertificates(ctx, transactionalStorage)
+	require.NoError(err)
+	rootIds, err = transactionalStorage.List(ctx, (*types.RootCertificate)(nil))
+	require.NoError(err)
+	assert.Len(rootIds, 2)
+
+	// Flush storage with false to initiate a rollback, should remove roots
+	err = transactionalStorage.Flush(false)
+	require.NoError(err)
+
+	// Ensure roots no longer exist
+	rootIds, err = storage.List(ctx, (*types.RootCertificate)(nil))
+	require.NoError(err)
+	assert.Len(rootIds, 0)
+}
+
 func TestUnsupportedMessages(t *testing.T) {
 	require := require.New(t)
 	ctx := context.Background()
