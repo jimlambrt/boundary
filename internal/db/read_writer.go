@@ -400,6 +400,9 @@ func (rw *Db) DeleteItems(ctx context.Context, deleteItems []interface{}, opt ..
 // BeginTx will start a transaction and return a RW for use in db operations
 func (w *Db) BeginTx(ctx context.Context) (*Db, *dbw.RW, error) {
 	const op = "db.BeginTx"
+	if w.underlying == nil {
+		return nil, nil, errors.New(ctx, errors.InvalidParameter, op, "missing underlying db")
+	}
 	beginTx, err := dbw.New(w.underlying.wrapped).Begin(ctx)
 	if err != nil {
 		return nil, nil, wrapError(ctx, err, op)
@@ -411,6 +414,9 @@ func (w *Db) BeginTx(ctx context.Context) (*Db, *dbw.RW, error) {
 // RollbackTx will rollback a transaction
 func (w *Db) RollbackTx(ctx context.Context, transaction *dbw.RW) error {
 	const op = "db.RollbackTx"
+	if transaction == nil {
+		return errors.New(ctx, errors.InvalidParameter, op, "missing underlying transaction")
+	}
 	if err := transaction.Rollback(ctx); err != nil {
 		return wrapError(ctx, err, op)
 	}
@@ -420,6 +426,9 @@ func (w *Db) RollbackTx(ctx context.Context, transaction *dbw.RW) error {
 // CommitTx will commit a transaction
 func (w *Db) CommitTx(ctx context.Context, transaction *dbw.RW) error {
 	const op = "db.CommitTx"
+	if transaction == nil {
+		return errors.New(ctx, errors.InvalidParameter, op, "missing underlying transaction")
+	}
 	if err := transaction.Commit(ctx); err != nil {
 		if err := transaction.Rollback(ctx); err != nil {
 			return errors.Wrap(ctx, err, op)
