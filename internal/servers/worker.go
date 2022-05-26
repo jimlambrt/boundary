@@ -11,8 +11,8 @@ import (
 )
 
 // A Worker is a server that provides an address which can be used to proxy
-// worker connections. It can be tagged with custom tags and is used when
-// authorizing and establishing a worker.  It is owned by a scope.
+// session connections. It can be tagged with custom tags and is used when
+// authorizing and establishing a session.  It is owned by a scope.
 type Worker struct {
 	*store.Worker
 
