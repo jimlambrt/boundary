@@ -3,8 +3,6 @@ package servers_test
 import (
 	"context"
 	"fmt"
-	"github.com/hashicorp/boundary/internal/servers/store"
-	"github.com/hashicorp/go-dbw"
 	"testing"
 	"time"
 
@@ -12,6 +10,8 @@ import (
 	"github.com/hashicorp/boundary/internal/errors"
 	"github.com/hashicorp/boundary/internal/kms"
 	"github.com/hashicorp/boundary/internal/servers"
+	"github.com/hashicorp/boundary/internal/servers/store"
+	"github.com/hashicorp/go-dbw"
 	"github.com/stretchr/testify/assert"
 	"github.com/stretchr/testify/require"
 )
