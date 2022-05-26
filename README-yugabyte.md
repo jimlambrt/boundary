@@ -12,7 +12,7 @@ create user boundary with password 'boundary';
 ```
 ### build/install this fork of boundary:
 ```
-git clone https://github.com/jimlambrt/boundary.git`
+git clone https://github.com/jimlambrt/boundary.git
 git switch jimlambrt-yugabyte
 make build
 make install
