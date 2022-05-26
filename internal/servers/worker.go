@@ -11,8 +11,8 @@ import (
 )
 
 // A Worker is a server that provides an address which can be used to proxy
-// session connections. It can be tagged with custom tags and is used when
-// authorizing and establishing a session.  It is owned by a scope.
+// worker connections. It can be tagged with custom tags and is used when
+// authorizing and establishing a worker.  It is owned by a scope.
 type Worker struct {
 	*store.Worker
 
@@ -34,6 +34,11 @@ func NewWorker(scopeId string, opt ...Option) *Worker {
 		},
 		Tags: opts.withWorkerTags,
 	}
+}
+
+// AllocWorker will allocate a Worker
+func AllocWorker() Worker {
+	return Worker{Worker: &store.Worker{}}
 }
 
 func (w *Worker) clone() *Worker {
